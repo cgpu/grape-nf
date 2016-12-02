@@ -313,47 +313,6 @@ if ('contaminant-filtering' in pipelineSteps && config.process.$contaminantIndex
     (fastqs) = input_files.into(1)
 }
 
-if ('contaminant-filtering' in pipelineSteps && config.process.$contaminantIndex != null) {
-
-    process contaminantIndex {
-
-        input:
-        file(genomes) from contaminantGenomes.toSortedList()
-
-        output:
-        set species, file("genomeDir") into ContaminantIdx
-
-        script:
-        species = "contaminants"
-        readLength = params.readLength
-
-        template(task.command)
-    }
-
-    process contaminantMapping {
-
-        input:
-        set id, sample, file(reads), qualityOffset from input_files
-        set species, file(genomeDir) from ContaminantIdx.first()
-
-        output:
-        set id, sample, file("${prefix}.Unmapped.out.mate[12].gz"), qualityOffset into fastqs
-
-        script:
-        prefix = "${id}"
-        matchNmin = task.ext.matchNmin
-        matchNminOverLread = task.ext.matchNminOverLread
-        scoreMinOverLread = task.ext.scoreMinOverLread
-        maxMultimaps = task.ext.maxMultimaps
-        maxMismatches = task.ext.maxMismatches
-
-        template(task.command)
-
-    }
-} else {
-    (fastqs) = input_files.into(1)
-}
-
 if ('mapping' in pipelineSteps) {
 
     if (! params.genomeIndex) {
