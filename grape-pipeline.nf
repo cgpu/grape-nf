@@ -38,6 +38,7 @@ params.sjOverHang = 100
 params.steps = 'mapping,bigwig,contig,quantification'
 params.wigRefPrefix = 'chr'
 params.contaminantGenomes = null
+params.addXs = false
 
 
 // Some configuration variables
