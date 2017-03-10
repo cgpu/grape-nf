@@ -287,7 +287,7 @@ if ('contaminant-filtering' in pipelineSteps && config.process.$contaminantIndex
         species = "contaminants"
         readLength = params.readLength
 
-        template(task.command)
+        template(task.ext.command)
     }
 
     process contaminantMapping {
@@ -307,7 +307,7 @@ if ('contaminant-filtering' in pipelineSteps && config.process.$contaminantIndex
         maxMultimaps = task.ext.maxMultimaps
         maxMismatches = task.ext.maxMismatches
 
-        template(task.command)
+        template(task.ext.command)
 
     }
 } else {
@@ -491,7 +491,7 @@ process genomicRegions {
     set species, file('genomic_regions.bed') into GenomicRegions
 
     script:
-    template(task.command)
+    template(task.ext.command)
 }
 
 process bamStats {
@@ -510,7 +510,7 @@ process bamStats {
     maxBuf = task.ext.maxBuf
     logLevel = task.ext.logLevel
 
-    template(task.command)
+    template(task.ext.command)
 
 }
 
