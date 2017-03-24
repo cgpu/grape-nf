@@ -253,7 +253,7 @@ Channel.from(genomes)
 
 pref = "_m${params.maxMismatches}_n${params.maxMultimaps}"
 
-if ('contig' in pipelineSteps || 'bigwig' in pipelineSteps) {
+if ( 'mapping' in pipelineSteps || 'contig' in pipelineSteps || 'bigwig' in pipelineSteps) {
     process fastaIndex {
 
         input:
