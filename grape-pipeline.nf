@@ -645,7 +645,7 @@ process quantification {
 }
 
 out.mix(bamStats, bigwig, contig, isoforms, genes)
-.collectFile(name: pdb.name, storeDir: pdb.parent, newLine: true) { id, sample, type, view, file, pairedEnd, readStrand ->
+.collectFile(name: pdb.name, publishDir: 'results', storeDir: pdb.parent, newLine: true) { id, sample, type, view, file, pairedEnd, readStrand ->
     [sample, id, file, type, view, pairedEnd ? 'Paired-End' : 'Single-End', readStrand].join("\t")
 }
 .subscribe {
