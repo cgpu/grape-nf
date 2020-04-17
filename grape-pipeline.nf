@@ -20,6 +20,7 @@
  */
 
 //Set default values for params
+params.output = 'results'
 params.addXs = false
 params.bamSort = null
 params.chunkSize = null
@@ -73,6 +74,7 @@ if (params.help) {
     log.info ''
     log.info 'Options:'
     log.info '    --help                              Show this message and exit.'
+    log.info '    --output                            Path to output directory.'
     log.info '    --index INDEX_FILE                  Index file.'
     log.info '    --genome GENOME_FILE                Reference genome file(s).'
     log.info '    --annotation ANNOTAION_FILE         Reference gene annotation file(s).'
@@ -108,6 +110,7 @@ log.info "G R A P E ~ RNA-seq Pipeline"
 log.info ""
 log.info "General parameters"
 log.info "------------------"
+log.info "Output directory                : ${params.output}"
 log.info "Index file                      : ${params.index}"
 log.info "Genome                          : ${params.genome}"
 log.info "Annotation                      : ${params.annotation}"
@@ -213,6 +216,8 @@ process fetch {
     tag { "${outPath.name}" }
     storeDir { outPath.parent }
 
+    publishDir = [path: "${params.output}/fetch", mode: 'copy', overwrite: 'true' ]
+
     input:
     set sample, id, path, type, view from input_chunks_toFetch
 
@@ -285,6 +290,8 @@ pref = "_m${params.maxMismatches}_n${params.maxMultimaps}"
 if ('contig' in pipelineSteps || 'bigwig' in pipelineSteps) {
     process fastaIndex {
 
+        publishDir = [path: "${params.output}/fastaIndex", mode: 'copy', overwrite: 'true' ]
+
         input:
         set species, file(genome) from Genomes1
         set species, file(annotation) from Annotations1
@@ -310,6 +317,8 @@ if ('mapping' in pipelineSteps) {
 
     if (! params.genomeIndex) {
         process index {
+
+            publishDir = [path: "${params.output}/index", mode: 'copy', overwrite: 'true' ]
 
             input:
             set species, file(genome) from Genomes2
@@ -338,6 +347,8 @@ if ('mapping' in pipelineSteps) {
     (GenomeIdx1, GenomeIdx2) = GenomeIdx.into(2)
 
     process mapping {
+
+        publishDir = [path: "${params.output}/mapping", mode: 'copy', overwrite: 'true' ]
 
         input:
         set id, sample, file(reads), qualityOffset from input_files
@@ -394,6 +405,8 @@ if ('quantification' in pipelineSteps && quantificationMode != "Genome") {
 
     process txIndex {
 
+        publishDir = [path: "${params.output}/txIndex", mode: 'copy', overwrite: 'true' ]
+
         input:
         set species, file(genome) from Genomes3
         set species, file(annotation) from Annotations2
@@ -422,6 +435,8 @@ bam.mix(bamsFromIndex).groupTuple(by: [1, 2, 3, 5]) // group by sample, type, vi
 }
 
 process mergeBam {
+
+    publishDir = [path: "${params.output}/mergeBam", mode: 'copy', overwrite: 'true' ]
 
     input:
     set id, sample, type, view, file(bam), pairedEnd from groupedBam
@@ -465,6 +480,8 @@ if (params.readStrand) {
 
     process inferExp {
 
+        publishDir = [path: "${params.output}/inferExp", mode: 'copy', overwrite: 'true' ]
+
         input:
         set id, sample, type, view, file(bam), pairedEnd from bamInfer.filter { it[3] =~ /Genome/ }
         set species, file(annotation) from Annotations4.first()
@@ -489,6 +506,8 @@ bamStrand.cross(bam2)
 
 if ( params.markDuplicates || params.removeDuplicates ) {
     process markdup {
+
+        publishDir = [path: "${params.output}/markdup", mode: 'copy', overwrite: 'true' ]
 
         input:
         set id, sample, type, view, file(bam), pairedEnd, readStrand from allBamsMarkDup.filter { it[3] =~ /Genome/ }
@@ -532,6 +551,8 @@ if (!('quantification' in pipelineSteps)) quantificationBams = Channel.empty()
 
 process bamStats {
 
+    publishDir = [path: "${params.output}/bamStats", mode: 'copy', overwrite: 'true' ]
+
     input:
     set id, sample, type, view, file(bam), pairedEnd, readStrand from statsBams
     set species, file(annotation) from Annotations8.first()
@@ -550,6 +571,8 @@ process bamStats {
 }
 
 process bigwig {
+
+    publishDir = [path: "${params.output}/bigwig", mode: 'copy', overwrite: 'true' ]
 
     input:
     set id, sample, type, view, file(bam), pairedEnd, readStrand from bigwigBams
@@ -579,6 +602,8 @@ bigwig = bigwig.reduce([:]) { files, tuple ->
 
 process contig {
 
+    publishDir = [path: "${params.output}/contig", mode: 'copy', overwrite: 'true' ]
+
     input:
     set id, sample, type, view, file(bam), pairedEnd, readStrand from contigBams
     set species, file(genomeFai) from FaiIdx2.first()
@@ -596,6 +621,8 @@ process contig {
 }
 
 process quantification {
+
+    publishDir = [path: "${params.output}/quantification", mode: 'copy', overwrite: 'true' ]
 
     input:
     set id, sample, type, view, file(bam), pairedEnd, readStrand from quantificationBams
